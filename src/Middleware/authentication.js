@@ -1,7 +1,7 @@
 const jwt=require('jsonwebtoken')
 const blogModel=require('../Model/blogModel')
 let mongoose= require('mongoose')
-const isValid=mongoose.Types.ObjectId.isValid
+const isValid = mongoose.Types.ObjectId.isValid
 
 const authentication=async function(req,res,next){
     try{

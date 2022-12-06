@@ -151,7 +151,8 @@ const deletedBlog = async function (req, res) {
 
 const deletebyquery=async function(req,res){
 try{
-   let filterdata={isDeleted:false, authorId:req.authorId}
+   let filterdata={isDeleted:false, isPublished : true}
+   
    let {category,subcategory,tags,isPublished,authorId}=req.query
 
    if(authorId){
@@ -160,6 +161,7 @@ try{
     }else
     filterdata.authorId=authorId
    }
+
    if(category){
     filterdata.category=category
    }
@@ -169,9 +171,7 @@ try{
    if(tags){
     filterdata.tags=tags
    }
-   if(isPublished){
-    filterdata.isPublished=isPublished
-   }
+   
    let data=await blogModel.findOne(filterdata)
 
    if(!data){
