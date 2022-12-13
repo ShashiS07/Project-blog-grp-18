@@ -152,11 +152,28 @@ const deletedBlog = async function (req, res) {
 
 const deletebyquery=async function(req,res){
 try{
-  let data=req.query
-  if(!Object.keys(data).length) return res.status(400).send({status:false,message:"Please Provide Query"})
+   let filterdata={isDeleted:false, isPublished : true}
+   
+   let {category,subcategory,tags,isPublished,authorId}=req.query
 
-  let checkId = await blogModel.find(data).select({_id:0,authorId:1})
-  if(checkId.length==0) return res.status(400).send({status:false,message:"No Blog found"})
+   if(authorId){
+    if(!isValid(authorId)){
+        return res.status(400).send({status:false, error:"Please provide valid id"})
+    }else
+    filterdata.authorId=authorId
+   }
+
+   if(category){
+    filterdata.category=category
+   }
+   if(subcategory){
+    filterdata.subcategory=subcategory
+   }
+   if(tags){
+    filterdata.tags=tags
+   }
+   
+   let data=await blogModel.findOne(filterdata)
 
   let count=0
   for(let i=0;i<checkId.length;i++){
