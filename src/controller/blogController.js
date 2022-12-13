@@ -151,49 +151,32 @@ const deletedBlog = async function (req, res) {
 // ============================delete by query=====================================
 
 const deletebyquery=async function(req,res){
-try{
-   let filterdata={isDeleted:false, isPublished : true}
-   
-   let {category,subcategory,tags,isPublished,authorId}=req.query
-
-   if(authorId){
-    if(!isValid(authorId)){
-        return res.status(400).send({status:false, error:"Please provide valid id"})
-    }else
-    filterdata.authorId=authorId
-   }
-
-   if(category){
-    filterdata.category=category
-   }
-   if(subcategory){
-    filterdata.subcategory=subcategory
-   }
-   if(tags){
-    filterdata.tags=tags
-   }
-   
-   let data=await blogModel.findOne(filterdata)
-
-  let count=0
-  for(let i=0;i<checkId.length;i++){
-    if((checkId[i].authorId).toString()==req["decodedToken"].authorId) count++
-  }
-  if(count==0) return res.status(403).send({status:false,message:"Not Authorised"})
-
-  const blogs = await blogModel.updateMany({$and:[{isDeleted:false,authorId:req["decodedToken"].authorId},req.query]},{isDeleted:true,deletedAt:new Date(Date.now())}, {new: true});
-
-  if(blogs.modifiedCount>0){ 
-    return res.status(200).send({status:true,message:"Blog Deleted Successfully"})
-}else{
-    return res.status(200).send({status:true})
-}
-
-}
-catch(error){
-    res.status(500).send({status:false,error:error.message})
-}
-}
+    try{
+      let data=req.query
+      if(!Object.keys(data).length) return res.status(400).send({status:false,message:"Please Provide Query"})
+    
+      let checkId = await blogModel.find(data).select({_id:0,authorId:1})
+      if(checkId.length==0) return res.status(400).send({status:false,message:"No Blog found"})
+    
+      let count=0
+      for(let i=0;i<checkId.length;i++){
+        if((checkId[i].authorId).toString()==req["decodedToken"].authorId) count++
+      }
+      if(count==0) return res.status(403).send({status:false,message:"Not Authorised"})
+    
+      const blogs = await blogModel.updateMany({$and:[{isDeleted:false,authorId:req["decodedToken"].authorId},req.query]},{isDeleted:true,deletedAt:new Date(Date.now())}, {new: true});
+    
+      if(blogs.modifiedCount>0){ 
+        return res.status(200).send({status:true,message:"Blog Deleted Successfully"})
+    }else{
+        return res.status(200).send({status:true})
+    }
+    
+    }
+    catch(error){
+        res.status(500).send({status:false,error:error.message})
+    }
+    }
 // =======================================================================================
 
 module.exports.createblog=createblog
